@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"et_sui/proceed"
+
 	"github.com/jinzhu/gorm"
 	"github.com/rivo/tview"
 )
@@ -26,6 +28,7 @@ func mainPage(app *tview.Application) *tview.Flex {
 	return flex
 }
 func commitPage(app *tview.Application) *tview.Flex {
+	// Create the buttons
 	addButton := tview.NewButton("Add Expense").SetSelectedFunc(func() {
 		app.SetRoot(addExpensePage(app), true)
 	})
@@ -36,23 +39,27 @@ func commitPage(app *tview.Application) *tview.Flex {
 		app.SetRoot(viewExpensesPage(app), true)
 	})
 
+	// Create a vertical box layout for the buttons
 	flex := tview.NewFlex().
 		SetDirection(tview.FlexRow).
-		AddItem(addButton, 0, 1, true).
-		AddItem(deleteButton, 0, 1, true).
-		AddItem(viewButton, 0, 1, true)
+		AddItem(addButton, 0, 1, true).     // Initial focus on "Add Expense"
+		AddItem(deleteButton, 0, 1, false). // No focus
+		AddItem(viewButton, 0, 1, false)    // No focus
 
 	return flex
 }
+
 func addExpensePage(app *tview.Application) *tview.Form {
-	form := tview.NewForm().
-		AddInputField("ID", "123", 20, nil, nil). // Hardcoded ID for now
-		AddInputField("Amount", "", 20, nil, nil).
-		AddInputField("Description", "", 20, nil, nil).
-		AddButton("Add Expense", func() {
+	form := tview.NewForm()
+
+	form.AddInputField("ID", "123", 20, nil, nil). // Hardcoded ID for now
+							AddInputField("Amount", "", 20, nil, nil).
+							AddInputField("Description", "", 20, nil, nil).
+							AddButton("Add Expense", func() {
 			// Handle form submission, add expense to the database
 			amount := form.GetFormItemByLabel("Amount").(*tview.InputField).GetText()
 			description := form.GetFormItemByLabel("Description").(*tview.InputField).GetText()
+			proceed.Add(amount, description)
 			// Convert and add to the database
 			// ...
 			app.SetRoot(commitPage(app), true)
@@ -63,11 +70,14 @@ func addExpensePage(app *tview.Application) *tview.Form {
 
 	return form
 }
+
 func deleteExpensePage(app *tview.Application) *tview.Form {
-	form := tview.NewForm().
-		AddInputField("ID", "", 20, nil, nil).
+	form := tview.NewForm()
+
+	form.AddInputField("ID", "", 20, nil, nil).
 		AddButton("Delete Expense", func() {
 			id := form.GetFormItemByLabel("ID").(*tview.InputField).GetText()
+			proceed.Delete(id)
 			// Delete the expense from the database by ID
 			// ...
 			app.SetRoot(commitPage(app), true)
@@ -78,7 +88,8 @@ func deleteExpensePage(app *tview.Application) *tview.Form {
 
 	return form
 }
-func viewExpensesPage(app *tview.Application) *tview.TextView {
+
+func viewExpensesPage(_ *tview.Application) *tview.TextView {
 	textView := tview.NewTextView()
 
 	// Retrieve all expenses from the database and display them
