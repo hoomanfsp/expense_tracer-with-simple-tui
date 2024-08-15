@@ -1,8 +1,11 @@
 package ui
 
-import "github.com/rivo/tview"
+import (
+	"github.com/jinzhu/gorm"
+	"github.com/rivo/tview"
+)
 
-func Start() {
+func Start(db *gorm.DB) {
 	app := tview.NewApplication()
 	if err := app.SetRoot(mainPage(app), true).Run(); err != nil {
 		panic(err)
