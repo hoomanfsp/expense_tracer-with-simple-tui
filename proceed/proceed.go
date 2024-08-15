@@ -1,13 +1,15 @@
 package proceed
 
-func Add(amount, description string) {
+import "github.com/jinzhu/gorm"
+
+func Add(amount, description string, db *gorm.DB) {
 
 }
 
-func Delete(id string) {
+func Delete(id string, db *gorm.DB) {
 
 }
 
-func List() {
+func List(db *gorm.DB) string {
 
 }
